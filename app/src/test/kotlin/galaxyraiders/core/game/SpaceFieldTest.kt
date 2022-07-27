@@ -377,6 +377,56 @@ class SpaceFieldTest {
     assertNotEquals(-1, spaceField.asteroids.indexOf(asteroid))
   }
 
+  @Test
+  fun `it can register an explosion`() {
+    spaceField.generateAsteroid()
+    spaceField.generateMissile()
+
+    assertEquals(0, spaceField.explosions.size)
+
+    val missile = spaceField.missiles[0]
+    val asteroid = spaceField.asteroids[0]
+    spaceField.registerExplosion(missile, asteroid)
+
+    assertEquals(1, spaceField.explosions.size)
+    assertEquals(-1, spaceField.missiles.indexOf(missile))
+    assertEquals(-1, spaceField.asteroids.indexOf(asteroid))
+  }
+
+  @Test
+  fun `it can tick explosions`() {
+    spaceField.generateAsteroid()
+    spaceField.generateMissile()
+
+    val missile = spaceField.missiles[0]
+    val asteroid = spaceField.asteroids[0]
+    spaceField.registerExplosion(missile, asteroid)
+
+    val explosion = spaceField.explosions[0]
+    val initialTicks = explosion.ticks
+
+    spaceField.tickExplosions()
+
+    assertEquals(initialTicks - 1, explosion.ticks)
+  }
+
+  @Test
+  fun `it can trim explosions`() {
+    spaceField.generateAsteroid()
+    spaceField.generateMissile()
+
+    val missile = spaceField.missiles[0]
+    val asteroid = spaceField.asteroids[0]
+    spaceField.registerExplosion(missile, asteroid)
+
+    val explosion = spaceField.explosions[0]
+    while (explosion.ticks > 0) spaceField.tickExplosions()
+    spaceField.tickExplosions()
+    spaceField.trimExplosions()
+
+    assertEquals(-1, spaceField.explosions.indexOf(explosion))
+  }
+
   private companion object {
     @JvmStatic
     fun provideSpaceFieldWithCornerCaseGeneratorArguments(): Stream<Arguments> {

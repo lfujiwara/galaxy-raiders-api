@@ -146,7 +146,7 @@ class GameEngineTest {
       "GameEngine should move all space objects",
       { assertEquals(expectedShipPosition, ship.center) },
       { assertEquals(expectedAsteroidPosition, asteroid.center) },
-      { assertEquals(expectedMissilePosition, missile.center) },
+      { assertEquals(expectedMissilePosition, missile.center) }
     )
   }
 
@@ -169,9 +169,18 @@ class GameEngineTest {
       asteroidDistanceToBottomBorder / Math.abs(asteroid.velocity.dy)
     ).toInt()
 
+    hardGame.field.generateAsteroid()
+    hardGame.field.generateMissile()
+    hardGame.field.registerExplosion(hardGame.field.missiles[1], hardGame.field.asteroids[1])
+    val explosion = hardGame.field.explosions[0]
+    val repetitionsToExpireExplosion = explosion.ticks + 1
+
     val repetitionsToGetSpaceObjectsOutOfSpaceField = Math.max(
       repetitionsToGetMissileOutOfSpaceField,
-      repetitionsToGetAsteroidOutsideOfSpaceField,
+      Math.max(
+        repetitionsToGetAsteroidOutsideOfSpaceField,
+        repetitionsToExpireExplosion
+      )
     )
 
     repeat(repetitionsToGetSpaceObjectsOutOfSpaceField) {
@@ -184,6 +193,7 @@ class GameEngineTest {
       "GameEngine should trim all space objects",
       { assertEquals(-1, hardGame.field.missiles.indexOf(missile)) },
       { assertEquals(-1, hardGame.field.asteroids.indexOf(asteroid)) },
+      { assertEquals(-1, hardGame.field.explosions.indexOf(explosion)) }
     )
   }
 
